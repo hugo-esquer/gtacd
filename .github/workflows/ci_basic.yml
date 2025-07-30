@@ -9,7 +9,15 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+
       - name: Run application check script
         run: ./app/check_app.sh
+
       - name: Display index.html content
         run: cat app/index.html
+
+      - name: Check variables
+        run: echo "{{ secrets.FAKE_API_TOKEN }}"
+
+      - name: Afficher une variable d'environnement
+        run: echo "{{ env.RUNNER_OS }}"
