@@ -13,7 +13,6 @@ jobs:
       - name: Run application check script
         run: ./app/check_app.sh
 
-jobs:
   deploy:
     runs-on: self-hosted
     needs: build-and-test
