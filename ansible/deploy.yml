@@ -1,0 +1,49 @@
+- name: Install Nginx
+  hosts: deploiement
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Check if Nginx is already install
+      ansible.builtin.package_facts:
+
+    - name: Install Nginx if not installed
+      ansible.builtin.apt:
+        name: Nginx
+        state: latest
+      when: "'nginx' not in ansible_facts.packages"
+    
+    - name: Create Directory for app
+      ansible.builtin.file:
+        path: /var/www/html/tp-app
+        state: Directory
+        owner: root
+        group: root
+        mode: "0755"
+    
+    - name: Copy files
+      ansible.builtin.copy:
+        src: ./app/index.html
+        dest: /var/www/html/tp-app/index.html
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy configuration
+      ansible.builtin.template:
+        src: ./ansible/templates/nginx_vhost.conf.j2
+        dest: /etc/nginx/sites-available/nginx_vhost
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Create symbolic link
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/nginx_vhost
+        dest: /etc/nginx/sites-enabled/nginx_vhost
+        state: link
+
+    - name: Reload service nginx
+      ansible.builtin.systemd_service:
+        state: restarted
+        name: nginx
+    

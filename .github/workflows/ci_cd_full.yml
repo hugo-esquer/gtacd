@@ -1,0 +1,69 @@
+name: Basic CICD Workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Run application check script
+        run: ./app/check_app.sh
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    needs: build-and-test
+    env:
+      SERVER_USER: {{ secrets.SERVER_USER }}
+      SERVER_IP: {{ secrets.SERVER_IP }}
+    steps:
+      - name: Clone repository
+        uses: action/checkout@v4
+      
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        whith:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        whith:
+          python-version: 3.x
+
+      - name: Check if Ansible is installed
+        id: check_ansible
+        run: |
+          if command -v ansible >/dev/null 2>&1; then
+            echo "Ansible already installed"
+            echo "ansible_installed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Ansible not installed"
+            echo "ansible_installed=false" >> "$GITHUB_OUTPUT"
+          fi          
+
+      - name: Install Ansible
+        if: steps.check_ansible.outputs.ansible_installed == 'false'
+        run: |
+          python3 -m pip install -- upgrade pip
+          python3 -m pip install ansible
+
+      - name: Create inventory file
+        run: |
+          cat << EOF > inventory.yml
+          all:
+            hosts:
+              deploiement:
+                ansible_host: $SERVER_IP
+                ansible_user: $SERVER_USER
+            children:
+              web:
+                hosts:
+                  deploiement:
+          EOF
+
+      - name: Execute Ansible playbook deploy.yml
+        run: ansible-playbook deploy.yml
