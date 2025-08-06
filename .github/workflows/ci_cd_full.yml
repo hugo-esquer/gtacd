@@ -43,7 +43,7 @@ jobs:
         if: steps.check_ansible.outputs.ansible_installed == 'false'
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install ansible
+          python3 -m pip install --upgrade ansible
 
       - name: Create inventory file
         run: |
