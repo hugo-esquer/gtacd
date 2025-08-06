@@ -17,20 +17,20 @@ jobs:
     runs-on: self-hosted
     needs: build-and-test
     env:
-      SERVER_USER: {{ secrets.SERVER_USER }}
-      SERVER_IP: {{ secrets.SERVER_IP }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_IP: ${{ secrets.SERVER_IP }}
     steps:
       - name: Clone repository
         uses: action/checkout@v4
       
       - name: Set up SSH agent
         uses: webfactory/ssh-agent@v0.9.0
-        whith:
+        with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
-        whith:
+        with:
           python-version: 3.x
 
       - name: Check if Ansible is installed
