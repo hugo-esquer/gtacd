@@ -37,7 +37,10 @@ jobs:
           else
             echo "Ansible not installed"
             echo "ansible_installed=false" >> "$GITHUB_OUTPUT"
-          fi          
+          fi
+
+      - name: Ajouter /home/vagrant/.local/bin au PATH
+        run: echo "/home/vagrant/.local/bin" >> $GITHUB_PATH
 
       - name: Install Ansible
         if: steps.check_ansible.outputs.ansible_installed == 'false'
