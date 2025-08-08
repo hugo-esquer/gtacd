@@ -63,4 +63,4 @@ jobs:
           EOF
 
       - name: Execute Ansible playbook deploy.yml
-        run: ansible-playbook deploy.yml
+        run: ansible-playbook ./ansible/deploy.yml
